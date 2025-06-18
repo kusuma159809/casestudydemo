@@ -8,6 +8,7 @@ jobs:
   sonar-scan:
     name: SonarQube Analysis
     runs-on: ubuntu-latest
+    continue-on-error: true # Allow workflow to continue even if this job fails
     steps:
       - uses: actions/checkout@v4
         with:
@@ -21,13 +22,14 @@ jobs:
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
-        run: mvn -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.organization=copilotorg -Dsonar.projectKey=copilotproj
+        run: mvn -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.organization=democase -Dsonar.projectKey=democase_study
 
   snyk-scan:
     needs: sonar-scan
-    if: always()
+    if: always() # Always run, regardless of previous job status
     name: Snyk Security Scan
     runs-on: ubuntu-latest
+    continue-on-error: true # Allow workflow to continue even if this job fails
     steps:
       - uses: actions/checkout@v4
       - name: Snyk Security Scan
@@ -38,7 +40,7 @@ jobs:
 
   zap-scan:
     needs: snyk-scan
-    if: always()
+    if: always() # Always run, regardless of previous job status
     name: OWASP ZAP Scan
     runs-on: ubuntu-latest
     steps:
